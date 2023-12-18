@@ -1,0 +1,1 @@
+This is a collection of smaller projects that I've worked on over the years, mostly for fun.
