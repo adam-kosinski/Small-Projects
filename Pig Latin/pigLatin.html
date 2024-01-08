@@ -2,80 +2,107 @@
 
 <head>
     <title>Pig Latin</title>
+    <meta name="viewport" content="width=device-width initial-scale=1">
+    <link href="pigLatin.css" type="text/css" rel="stylesheet" />
 </head>
 
 <body style="height: 100%; background-color: pink;">
-    <p style="width: 600px; background-color: #fee; padding: 5px;">
-        Oink oink!<br><br>
-        Copy the JavaScript code below and navigate to any website of your choosing. Open the console on that website by typing Ctrl+Shift+J (or Command+Option+J for MacOS), paste
-        the code in the console, and press Enter to run it. Bing bang boom you just translated the website into pig latin!<br><br>
-        Oink.
-    </p>
-    <button style=" border: 1px solid black;
-                    background-color: #fee;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    margin-bottom: 5px;"
-            onclick="navigator.clipboard.writeText(document.querySelector('#code').textContent);
-                    document.querySelector('#copy_confirm').textContent = 'Copied successfully';">
-        Click here to copy the code below to your clipboard
-    </button>
+    <div id="instructions">
+        <span id="oink-oink">Oink oink!</span><br>(For mobile/phone directions see further down).<br><br>
+        Copy the JavaScript code below and navigate to any website of your choosing. In the URL bar, type:
+        <p class="embed-code">javascript:</p>and then paste the JavaScript code after it. Press enter. Bing bang boom
+        you just translated the website into pig latin!
+        <br><br>Oink.
+        <hr>
+        Alternatively, you can create a bookmarklet to easily run this on a website whenever you want! Just
+        drag this link: <a id="bookmarklet-link">PIG LATIN</a> to your bookmarks bar/folder, navigate to a webpage, and
+        then click the bookmark.
+        <br><br>
+        <strong><u>Mobile Platforms</u></strong>
+        On a mobile platform, it's a bit trickier:
+        <ol>
+            <li>Bookmark this page (in Safari this is in the "share" menu)</li>
+            <li>Go into your bookmarks (book icon)</li>
+            <li>Tap "edit"</li>
+            <li>Tap the "Pig Latin" bookmark you just created to edit it</li>
+            <li>Replace the URL with <span class="embed-code">javascript:</span> followed by the code below</li>
+            <li>Tap done</li>
+            <li>Navigate to a webpage, and then open the Pig Latin bookmark</li>
+        </ol>
+    </div>
+    <button id="copy-button">Click here to copy the code below to your clipboard</button>
     <div id="copy_confirm" style="margin-bottom: 10px;"></div>
     <div style="background-color: #fee; padding: 5px; border: 1px solid gray; border-radius: 5px;">
-        <code>
-        <pre id="code">
-//define functions --------------------
+        <code id="code">
+(() => {
 
-function textNodesIn(el){
-	var textNodes = [];
-	var n; //current node
-	var treeWalker = document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false);
-		//args: root node, whatToShow property, additional filter, entityReferenceExpansion(some weird thing when parsing)
-	
-	while(n = treeWalker.nextNode()){textNodes.push(n)}
-	//condition calls nextNode function, moving the tree walker to next node (and setting n to this to improve efficiency)
-	//if there is no next node, condition evaluates to false
-	
-	return textNodes;
-}
+    const textNodesIn = function (el) {
+        var textNodes = [];
+        var n; /*current node*/
+        var treeWalker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+        /*args: root node, whatToShow property, additional filter, entityReferenceExpansion(some weird thing when parsing)*/
 
-function alterWord(word){
-	var isCapitalized = /[A-Z]/.test(word[0]);
-	
-	//if first letter is a vowel, add 'way' to end
-	if(/a|e|i|o|u/i.test(word[0])){
-		word = word + "way";
-	} else { //otherwise move all beginning consonants to end and add 'ay'
-		word = word.replace(/(^[^aeiou]+)(.*)/i,"$2$1ay"); //'$1' is 1st parentheses (the consonants at beginning), '$2' is 2nd paren. (rest of word)
-	}
-	
-	//take care of capitalization
-	word = word.toLowerCase();
-	if(isCapitalized){word = word.replace(/^\w/,function(match){return match.toUpperCase()})}
-	
-	return word;
-}
+        while (n = treeWalker.nextNode()) {
+            textNodes.push(n);
+        }
+        /*condition calls nextNode function, moving the tree walker to next node (and setting n to this to improve efficiency)*/
+        /*if there is no next node, condition evaluates to false*/
 
-function alterText(text){
-	//call alterWord for each word, replace with what it returns
-	return text.replace(/[A-Za-z']+/g, function(match){return alterWord(match)});
-}
+        return textNodes;
+    };
 
+    const alterWord = function (word) {
+        var isCapitalized = /[A-Z]/.test(word[0]);
 
+        /* if first letter is a vowel, add 'way' to end */
+        if (/a|e|i|o|u/i.test(word[0])) {
+            word = word + "way";
+        } else { /*otherwise move all beginning consonants to end and add 'ay' */
+            word = word.replace(/(^[^aeiou]+)(.*)/i, "$2$1ay"); /*'$1' is 1st parentheses (the consonants at beginning), '$2' is 2nd paren. (rest of word)*/
+        }
 
-//execute file on document --------------------------
+        /* take care of capitalization */
+        word = word.toLowerCase();
+        if (isCapitalized) {
+            word = word.replace(/^\w/, function (match) {
+                return match.toUpperCase();
+            });
+        }
 
-var body = document.getElementsByTagName("body")[0];
-var textNodes = textNodesIn(body);
+        return word;
+    };
 
-for(var i=0,l=textNodes.length; i&lt;l; i++){
-	if(textNodes[i].parentNode.nodeName !== "SCRIPT"){ //don't mess with javascript
-		textNodes[i].textContent = alterText(textNodes[i].textContent);
-	}
-}</pre>
+    const alterText = function (text) {
+        /* call alterWord for each word, replace with what it returns */
+        return text.replace(/[A-Za-z']+/g, function (match) {
+            return alterWord(match);
+        });
+    };
+
+    /* execute file on document -------------------------- */
+
+    const body = document.getElementsByTagName("body")[0];
+    const textNodes = textNodesIn(body);
+
+    for (var i = 0, l = textNodes.length; i < l; i++) {
+        if (textNodes[i].parentNode.nodeName !== "SCRIPT") {
+            textNodes[i].textContent = alterText(textNodes[i].textContent);
+        }
+    }
+})();
     </code>
     </div>
     <br>
+
+    <script>
+        let code_text = document.getElementById("code").textContent;
+        document.getElementById("bookmarklet-link").href = "javascript: " + code_text;
+
+        document.getElementById("copy-button").addEventListener("click", e => {
+            navigator.clipboard.writeText(document.querySelector('#code').textContent);
+            document.querySelector('#copy_confirm').textContent = 'Copied successfully';
+        });
+    </script>
 </body>
 
 </html>
